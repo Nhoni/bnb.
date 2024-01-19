@@ -67,8 +67,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'boolean')]
     private $isVerified = false;
 
-    #[ORM\ManyToMany(targetEntity: Room::class)]
+    #[ORM\OneToMany(mappedBy: 'traveler', targetEntity: Favorite::class, orphanRemoval: true)]
     private Collection $favorites;
+
 
     public function __construct()
     {
@@ -347,26 +348,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Room>
+     * @return Collection<int, Favorite>
      */
     public function getFavorites(): Collection
     {
         return $this->favorites;
     }
 
-    public function addFavorite(Room $favorite): static
+    public function addFavorite(Favorite $favorite): static
     {
         if (!$this->favorites->contains($favorite)) {
             $this->favorites->add($favorite);
+            $favorite->setTraveler($this);
         }
 
         return $this;
     }
 
-    public function removeFavorite(Room $favorite): static
+    public function removeFavorite(Favorite $favorite): static
     {
-        $this->favorites->removeElement($favorite);
+        if ($this->favorites->removeElement($favorite)) {
+            // set the owning side to null (unless already changed)
+            if ($favorite->getTraveler() === $this) {
+                $favorite->setTraveler(null);
+            }
+        }
 
         return $this;
     }
+    
 }
