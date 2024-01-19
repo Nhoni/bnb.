@@ -50,11 +50,15 @@ class Room
     #[ORM\OneToMany(mappedBy: 'room', targetEntity: Booking::class, orphanRemoval: true)]
     private Collection $bookings;
 
+    #[ORM\ManyToMany(targetEntity: Favorite::class, mappedBy: 'rooms')]
+    private Collection $favorites;
+
     public function __construct()
     {
         $this->reviews = new ArrayCollection();
         $this->equipment = new ArrayCollection();
         $this->bookings = new ArrayCollection();
+        $this->favorites = new ArrayCollection();
     }
 
     
@@ -241,6 +245,33 @@ class Room
             if ($booking->getRoom() === $this) {
                 $booking->setRoom(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Favorite>
+     */
+    public function getFavorites(): Collection
+    {
+        return $this->favorites;
+    }
+
+    public function addFavorite(Favorite $favorite): static
+    {
+        if (!$this->favorites->contains($favorite)) {
+            $this->favorites->add($favorite);
+            $favorite->addRoom($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFavorite(Favorite $favorite): static
+    {
+        if ($this->favorites->removeElement($favorite)) {
+            $favorite->removeRoom($this);
         }
 
         return $this;
