@@ -7,6 +7,7 @@ use App\Entity\Room;
 use App\Entity\User;
 use App\Entity\Review;
 use App\Entity\Equipment;
+use App\Entity\Favorite;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 
@@ -72,7 +73,10 @@ class AppFixtures extends Fixture
 
             // Add favorites to admin
             if ($i < 10) {
-                $admin->addFavorite($room);
+                $favorite = new Favorite();
+                $favorite->setTraveler($admin)
+                    ->addRoom($room);
+                $manager->persist($favorite);
             }
 
             // Set users with favorites
@@ -87,9 +91,14 @@ class AppFixtures extends Fixture
                     ->setImage(rand(0,1) ? '/images/default-1.jpg' : '/images/default-2.jpg')
                     ->setAddress($faker->address)
                     ->setCity($faker->city)
-                    ->setCountry($faker->country)
-                    ->addFavorite($room);
+                    ->setCountry($faker->country);
                 $manager->persist($user);
+
+                // Add favorites to users
+                $favorite = new Favorite();
+                $favorite->setTraveler($user)
+                    ->addRoom($room);
+                $manager->persist($favorite);
 
                 // Set Reviews
                 $review = new Review();
