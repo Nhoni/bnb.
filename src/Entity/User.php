@@ -70,7 +70,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'traveler', targetEntity: Favorite::class, orphanRemoval: true)]
     private Collection $favorites;
 
-
     public function __construct()
     {
         $this->rooms = new ArrayCollection();
@@ -173,6 +172,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    // Fusion : Fistname + Lastname
+    public function getFullname(): string
+    {
+        return $this->firstname . ' ' . $this->lastname;
+    }
+
+    // Current year minus birthyear to get age
+    public function getAge(): ?int
+    {
+        return date('Y') - $this->birthyear;
+    }
+    
     public function getBirthyear(): ?int
     {
         return $this->birthyear;
@@ -184,6 +195,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
 
     public function getAddress(): ?string
     {
@@ -376,5 +388,4 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
-    
 }
