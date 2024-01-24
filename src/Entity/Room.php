@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: RoomRepository::class)]
 class Room
@@ -17,20 +18,47 @@ class Room
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank(
+        message: 'You should enter a title.'
+    )]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'The address must be at least {{ limit }} characters long',
+        maxMessage: 'The address cannot be longer than {{ limit }} characters',
+    )]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $address = null;
 
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: 'The city must be at least {{ limit }} characters long',
+        maxMessage: 'The city cannot be longer than {{ limit }} characters',
+    )]
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $city = null;
 
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: 'The country must be at least {{ limit }} characters long',
+        maxMessage: 'The country cannot be longer than {{ limit }} characters',
+    )]
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $country = null;
 
+    #[Assert\Positive(
+        message: 'The price cannot be negative or free.'
+    )]
+    #[Assert\NotBlank(
+        message: 'You should enter a price.'
+    )]
     #[ORM\Column]
     private ?int $price = null;
 
@@ -275,5 +303,18 @@ class Room
         }
 
         return $this;
+    }
+
+    // Check if the room is already in the user's favorites
+    public function isFavorite(User $user): bool
+    {
+        foreach ($this->favorites as $favorite) {
+            if ($favorite->getTraveler() === $user) {
+                return true;
+            }
+        }
+
+        return false;
+        // return $this->favorites->exists(fn (int $key, Favorite $favorite) => $favorite->getTraveler() === $user);
     }
 }
