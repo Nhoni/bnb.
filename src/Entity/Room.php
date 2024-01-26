@@ -63,7 +63,7 @@ class Room
     private ?int $price = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $cover = '/images/room-cover.jpg';
+    private ?string $cover = 'room-cover.jpg';
 
     #[ORM\ManyToOne(inversedBy: 'rooms')]
     #[ORM\JoinColumn(nullable: false)]
@@ -316,5 +316,11 @@ class Room
 
         return false;
         // return $this->favorites->exists(fn (int $key, Favorite $favorite) => $favorite->getTraveler() === $user);
+    }
+
+    // __toString() allows to use the object as a string in forms
+    public function __toString(): string
+    {
+        return $this->title;
     }
 }
